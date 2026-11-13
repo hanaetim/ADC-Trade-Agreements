@@ -1,552 +1,355 @@
-# Abu Dhabi Customs - International Agreements & Origin Application
+# Enterprise App Kit
 
-A full-stack web application enabling Abu Dhabi Customs to execute international agreements and origin management workflows with consistency, traceability, and controllable automation while preserving human authority at defined decision gates.
-
-## Project Purpose
-
-The International Agreements & Origin application provides:
-- **Automated intake and routing** with deterministic policy enforcement via AGN1 (Intake & Routing Agent)
-- **Case management** for origin rulings, agreement updates, inquiries, studies, certificate sampling, and disputes
-- **Full audit trail** with immutable event and audit logs for every case transition
-- **Role-based access control** supporting seven distinct user roles from external applicants to technical committee members
-- **Visibility policy enforcement** ensuring appropriate information disclosure based on role
-- **Traceable decision-making** with recorded rationale for all agent-assisted and deterministic rule outcomes
-
-## Directory Structure
-
-```
-adc-trade-agreements/
-├── backend/                 # FastAPI backend (Python 3.11+)
-│   ├── app/
-│   │   ├── main.py         # Application entrypoint, router registration
-│   │   ├── config.py       # Environment-driven settings
-│   │   ├── database.py     # SQLAlchemy engine, session, Base
-│   │   ├── models/         # ORM models (cases, users, events, audit)
-│   │   ├── schemas/        # Pydantic request/response DTOs
-│   │   ├── repositories/   # Data access layer
-│   │   ├── services/       # Business logic (agents, rules, routing)
-│   │   ├── routers/        # API endpoints (/api/v1/*)
-│   │   ├── middleware/     # Auth, CORS, error handling, correlation
-│   │   └── adapters/       # External system integrations (ICOS)
-│   ├── alembic/            # Database migrations
-│   ├── tests/              # Unit, integration, acceptance tests
-│   ├── dev.env             # Local development configuration (committed)
-│   ├── pyproject.toml      # Dependencies and build config
-│   ├── Dockerfile          # Backend container image
-│   └── docker-entrypoint.sh # Migration runner for containers
-│
-├── frontend/                # React + TypeScript + Vite frontend
-│   ├── src/
-│   │   ├── App.tsx         # Route configuration
-│   │   ├── main.tsx        # Application entrypoint
-│   │   ├── lib/            # API client, auth context
-│   │   ├── pages/          # Page components (Queue, Submission, Detail, Trace)
-│   │   ├── components/     # Reusable UI components
-│   │   └── types/          # TypeScript interfaces (mirrors backend schemas)
-│   ├── e2e/                # Playwright end-to-end tests
-│   ├── package.json        # Dependencies and scripts
-│   ├── vite.config.ts      # Dev server with /api proxy
-│   ├── Dockerfile          # Frontend container image (nginx)
-│   └── default.conf.template # Nginx configuration for API proxy
-│
-├── start.sh                # Cross-platform startup script (macOS, Linux, Windows/Git Bash)
-├── stop.sh                 # Service shutdown script
-├── docker-compose.yml      # SQLite-based container deployment
-├── docker-compose.postgres.yml # PostgreSQL override for production
-├── .github/workflows/ci.yml # CI pipeline (lint, type-check, test, build)
-└── README.md               # This file
-```
+Turn a packaged set of specifications into working, enterprise-grade software — built for you by an AI coding agent, leveraging established spec-driven development frameworks like Spec Kit and OpenSpec, with BMAD planned.
 
 ## Prerequisites
 
-### For Local Development (No Docker Required)
+- **Node.js 20.12+** with npm/npx, and **git**
+- **uv** when using the `speckit` method so setup can install the official `specify-cli` tool user-wide
+- **macOS, Linux, or Windows** for the Node setup path.
+- A supported AI coding agent installed and authenticated:
 
-- **Python 3.11+** — [Download](https://python.org/downloads)
-- **Node.js 20.19+ or 22.12+** with npm — [Download](https://nodejs.org)
-- **Git** — Required on Windows for `start.sh` execution via Git Bash
+  | Agent | Status |
+  |---|---|
+  | Claude Code | ✅ Supported |
+  | Codex CLI | ✅ Supported |
+  | Kiro CLI | ✅ Supported |
+  | IBM Bob | ✅ Supported |
 
-### For Docker Deployment
+- A spec-driven development (SDD) method for how the agent plans and implements:
 
-- **Docker** 24+ and **Docker Compose** 2.20+
+  | Method | Status | What it is |
+  |---|---|---|
+  | `speckit` | ✅ Supported | Spec-driven delivery with GitHub Spec Kit (default) |
+  | `openspec` | ✅ Supported | OpenSpec delivery using generated OpenSpec skills and one change per delivery slice |
+  | `bmad` | Coming soon | BMAD-style PRD/architecture/story workflow |
 
-## Quick Start (Local Development)
+- Selected setup tools are resolved only when needed. OpenSpec can be installed globally with npm when the `openspec` method is selected, Spec Kit can be installed user-wide with `uv tool install` when the `speckit` method is selected, and Impeccable uses pinned `npx` setup execution when enabled. Setup never updates existing global tools without explicit interactive approval or `--ensure-tools`.
+- Restricted-network environments should either allowlist or mirror the pinned package sources used during setup, or preinstall the required tools before running setup with `--no-tool-downloads`. That flag disables setup-managed installs and pinned `npx` execution; it does not make missing tools optional.
 
-1. **Clone the repository**
+## Quickstart
 
-   ```bash
-   git clone <repository-url>
-   cd adc-trade-agreements
-   ```
+Create or choose a workspace folder, put `ent-app-kit/` inside it, and open a terminal in that workspace root.
+The recommended starting layout is:
 
-2. **Start the application**
-
-   ```bash
-   ./start.sh
-   ```
-
-   On **Windows**, run `start.bat` (which launches `start.sh` via Git Bash), or run `start.sh` directly in Git Bash.
-
-   The script will:
-   - Check prerequisites (Python 3.11+, Node.js 20.19+/22.12+, npm)
-   - Create Python virtual environment (`.venv/`) if missing
-   - Install backend dependencies (`pip install .`)
-   - Copy `backend/dev.env` to `backend/.env` if `.env` does not exist
-   - Run database migrations (`alembic upgrade head`)
-   - Seed the database with 7 users and 4 sample cases
-   - Find available ports (backend from 9000, frontend from 5173)
-   - Start backend server (uvicorn)
-   - Start frontend dev server (Vite with `/api` proxy to backend)
-   - Display URLs and seed credentials
-
-3. **Access the application**
-
-   - **Frontend**: http://localhost:5173 (or next available port)
-   - **Backend API Docs**: http://localhost:9000/docs (or next available port)
-   - **Backend Health**: http://localhost:9000/health
-
-4. **Log in** with one of the seed credentials (see table below)
-
-5. **Stop the application**
-
-   Press `Ctrl+C` in the terminal running `start.sh`, or run:
-
-   ```bash
-   ./stop.sh
-   ```
-
-## Seed Credentials
-
-Seven users are created automatically with different roles:
-
-| Role | Email | Password | Capabilities |
-|------|-------|----------|--------------|
-| **External Applicant** | external@example.com | External-pass-1 | Submit cases, view own submissions |
-| **Intake Exception Handler** | intake@example.com | Intake-pass-1 | Resolve intake exceptions, take manual actions on blocked cases |
-| **Specialist Reviewer** | specialist@example.com | Specialist-pass-1 | Review and validate case details |
-| **Section Head** | sectionhead@example.com | Section-pass-1 | Approve decisions at section level |
-| **Policy & Legal Approver** | policy@example.com | Policy-pass-1 | Review policy/legal escalations |
-| **Technical Committee** | technical@example.com | Technical-pass-1 | Handle technical disputes |
-| **Auditor** | auditor@example.com | Auditor-pass-1 | View audit logs and case traces |
-
-## API Documentation
-
-When the backend is running, interactive API documentation is available at:
-
-- **Swagger UI**: http://localhost:9000/docs
-- **ReDoc**: http://localhost:9000/redoc
-
-### Key Endpoints
-
-All API endpoints are mounted under `/api/v1`:
-
-- **POST /api/v1/auth/login** — Authenticate and receive JWT token
-- **POST /api/v1/auth/logout** — Revoke current session
-- **POST /api/v1/cases** — Register new case
-- **GET /api/v1/cases** — List cases (with pagination and filters)
-- **GET /api/v1/cases/{case_id}** — Get case details
-- **GET /api/v1/cases/{case_id}/trace** — View complete case trace with events
-- **POST /api/v1/cases/{case_id}/exception-actions** — Take manual action on blocked cases (requires `intake_exception_handler` role)
-- **GET /api/v1/health** — Health check (unauthenticated)
-
-## Testing
-
-### Backend Tests
-
-```bash
-cd backend
-
-# Activate virtual environment
-source .venv/bin/activate  # macOS/Linux
-# or
-.venv\Scripts\activate     # Windows
-
-# Run all tests
-python -m pytest tests/ -v
-
-# Run tests with coverage
-python -m pytest tests/ --cov=app --cov-report=term-missing
-
-# Run specific test categories
-python -m pytest tests/test_agn1_orchestrator.py -v        # AGN1 agent tests
-python -m pytest tests/test_auth_acceptance.py -v          # Auth API tests
-python -m pytest tests/test_case_acceptance.py -v          # Case API tests
-python -m pytest tests/test_trace_acceptance.py -v         # Trace API tests
-
-# Lint and type-check
-python -m ruff check app/
-python -m mypy app/ --ignore-missing-imports
+```text
+my-new-app/
+  ent-app-kit/
 ```
 
-### Frontend Tests
+**1.** In your terminal, from the workspace root, run setup. The Clack setup wizard asks for agent, method, and mode, then confirms the selected configuration before changing the workspace:
 
 ```bash
-cd frontend
+npx --yes --package ./ent-app-kit ent-app-kit setup
+# or skip the interactive setup:
+npx --yes --package ./ent-app-kit ent-app-kit setup --agent ibm-bob --method speckit --mode autopilot
+# OpenSpec is also supported:
+npx --yes --package ./ent-app-kit ent-app-kit setup --agent codex --method openspec --mode autopilot
+```
 
-# Run unit tests
+Registry execution is not currently supported. The supported setup path requires a local `ent-app-kit/` directory in the workspace and runs with `npx --yes --package ./ent-app-kit ent-app-kit setup`.
+
+The setup CLI uses package-managed Node dependencies for the wizard, YAML parsing, and schema validation. On a fresh copied package, the CLI installs its declared runtime dependencies automatically before setup starts; users do not run a separate install step. Selected external setup tools are resolved lazily according to the chosen method and options; use `--ensure-tools` when you want setup to install or update the recommended pinned tool versions automatically.
+
+**2.** Start your coding agent from the workspace root, then tell it:
+
+```
+Build the app kit.
+```
+
+The app is built into `repos/`. See [Setup in Detail](#setup-in-detail) for the choices behind the flags, and [Prerequisites](#prerequisites) for what must be installed first.
+
+## What Is This?
+
+This directory (`ent-app-kit/`) is a **self-contained package** with three internal concerns:
+
+- **Engine** (`package.json`, `bin/`, `src/`, `skills/`, `schemas/`) — the generic workflow machinery bundled with this App Kit package and versioned by `kit.version`.
+- **Agent adapters** (`src/adapters/`) — the coding-agent-specific install contract. Adapters decide where skills are installed, which project instruction file is written, which Spec Kit/OpenSpec integration name is used, and which optional native/plugin/capability surfaces apply. This keeps the core setup flow independent from one agent's packaging model.
+- **Payload** (`payload/`) — the injection target for everything specific to *your* project. In a reusable framework checkout it stays empty except placeholders; in an assembled App Kit package, payload injection must provide `payload/repos.yaml` (the repository layout). Beyond that, drop in whatever your project has: requirement docs, design artifacts, specs, backlogs, screenshots. **What's in `payload/` is what gets built — presence is scope.**
+- **Examples** (`examples/payload/minimal/`) — a minimal valid payload shape for local experiments, tests, and packagers that need a starting topology.
+
+Some payload directory names get special handling when present:
+
+| Directory | Triggers |
+|---|---|
+| `payload/design/` | Frontend design workstream uses it as brand/design truth |
+| `payload/air/` | Agent framework emitters (LangGraph, Strands) |
+| `payload/connectivity/` | Integration and contract checks |
+| `payload/nfr/` | Non-functional requirements pack |
+| `payload/conformance/` | Conformance test suite |
+| `payload/deploy/` | Deployment planning |
+| `payload/skills/` | Project-specific agent skills, installed alongside the engine's |
+
+Everything else — any file or folder — is treated as source material the build derives requirements from. Omit what you don't have; an absent directory just means that workstream has no dedicated inputs.
+
+### Declaring repositories (`payload/repos.yaml`)
+
+`repos.yaml` declares the target repository topology — how many repos the solution is built as, and where each one comes from. Setup materializes each declared repository in the workspace before the agent starts.
+
+Payload generators normally write this file during assembly. For a local minimal starting point, copy `examples/payload/minimal/repos.yaml` to `payload/repos.yaml` and then edit the repository names, roles, and paths for your project.
+
+```yaml
+schema: appkit-repos-v1
+topology: multi            # mono | multi
+
+repositories:
+  - name: backend
+    role: backend
+    workspace_path: repos/backend      # workspace-relative; defaults to repos/<name>
+    source: greenfield                 # greenfield | brownfield
+    description: Backend service and APIs.
+
+  - name: legacy-core
+    role: backend
+    workspace_path: repos/legacy-core
+    source: brownfield
+    remote: git@github.example.com:my-org/legacy-core.git # optional
+    branch: develop                    # optional; remote default branch if omitted
+```
+
+Per `source`, setup does the following at each repo's `workspace_path`:
+
+- **`greenfield`** — creates the directory and initializes an empty git repository on `main`.
+- **`brownfield`** — an existing repo the workflow builds onto. Either:
+  - declare `remote` (at `branch` if given) and setup clones it — the clone must succeed or setup fails; configure git credentials for the host first (e.g. `gh auth login`, SSH keys); or
+  - omit `remote` and copy the existing repo into `workspace_path` yourself before running setup — setup detects and uses it as-is.
+
+Setup is idempotent: re-running it leaves existing repos and their working trees untouched. It fails rather than guesses on conflicts — a `workspace_path` that already contains unrelated content, or a clone whose existing origin URL differs from the declared `remote`. `workspace_path` must stay inside the workspace (no absolute paths, no `..`).
+
+You run one setup command, open your coding agent, and ask it to build.
+
+## How It Works
+
+```
+ent-app-kit/          You drop this package into the workspace folder
+  └── bin/            One-time bootstrap CLI: installs skills, writes workspace state
+        │
+        ▼
+your coding agent     Reads the installed instructions and builds the app
+        │
+        ▼
+repos/                Generated application code (e.g. backend, frontend)
+out/                  Generated reports
+.kit-state/           Workflow state (lets the agent resume where it left off)
+```
+
+The agent works method-driven: it derives delivery slices from the packaged specs, implements them one by one, and verifies the result against the original artifacts. Everything it builds is traceable back to the kit.
+
+## LLM Wiki
+
+Enterprise App Kit can generate an `llm-wiki/` beside `ent-app-kit/`: a persistent, agent-readable knowledge layer derived from the package payload and structured with Open Knowledge Format (OKF) conventions.
+
+The wiki does not replace `payload/` as source of truth. Instead, it gives the coding agent a faster way to orient itself before it checks the exact requirements, contracts, wireframes, and acceptance criteria in `payload/`.
+
+The main advantages are:
+
+- **Less repeated context reconstruction** — durable product, architecture, workflow, agent, integration, data, control, and implementation knowledge is summarized once and reused across slices.
+- **Better navigation across large payloads** — related concepts are linked through pages such as agents, tools, systems, controls, evals, decisions, and open questions.
+- **More reliable resumability** — future agent sessions can start from `llm-wiki/index.md` to recover the implementation context quickly.
+- **Clear source boundaries** — wiki pages point back to payload files, while `payload/` remains the binding source for exact scope.
+- **A place for reusable synthesis** — implementation insights and recurring answers can be filed back into the wiki with source traceability.
+
+For ordinary implementation work, agents use the wiki for orientation, then verify exact details in `ent-app-kit/payload/` before coding.
+
+## Impeccable
+
+Enterprise App Kit installs [Impeccable](https://github.com/pbakaus/impeccable) during setup to give supported agents a frontend design skill for shaping, auditing, polishing, and hardening UI work.
+
+Impeccable is resolved through pinned `npx` package execution when setup runs; it is not installed globally by default and is not vendored into the package. Setup installs it into the active agent's project skill directory, for example `.agents/skills/impeccable` for Codex, `.claude/skills/impeccable` for Claude Code, `.kiro/skills/impeccable` for Kiro, or `.bob/skills/impeccable` for IBM Bob.
+
+The main advantages are:
+
+- **Shared design context** — Impeccable can capture product and design intent in `PRODUCT.md` and `DESIGN.md`, so later UI work has durable context for audience, brand, voice, colors, typography, and components.
+- **A concrete design vocabulary** — commands such as `shape`, `critique`, `audit`, `polish`, `harden`, `bolder`, and `quieter` give the agent specific ways to improve frontend work instead of relying on vague "make it better" prompts.
+- **Automatic quality pressure** — on hook-capable agents, Impeccable can run deterministic design checks after UI edits and feed findings back into the agent flow, catching common issues while the app is being built.
+- **Manual design passes still work everywhere** — even without hooks, the installed skill gives the agent structured workflows for frontend review, responsive behavior, accessibility, edge cases, and final polish.
+
+For Codex, Claude Code, and Kiro, setup uses Impeccable's native installer through the pinned package. For IBM Bob, setup installs the skill only; Bob does not currently have a supported Impeccable design hook integration. Skip Impeccable installation with `--skip-impeccable`.
+
+## Setup in Detail
+
+**1. Create or choose a workspace folder**
+
+```
+my-workspace/
+  └── ent-app-kit/
+```
+
+For new apps, start with a fresh folder. With the current local package flow, put `ent-app-kit/` inside it and run setup from the parent workspace root. Registry execution is not currently supported. For brownfield work, setup can clone declared remotes, or you can place an existing local repo at its configured `workspace_path` before setup runs. Do not run setup from inside `ent-app-kit/`.
+
+**2. Run setup from the workspace root in your terminal**
+
+```bash
+npx --yes --package ./ent-app-kit ent-app-kit setup
+```
+
+Setup opens the Clack wizard and walks you through three choices interactively (or pass them as flags):
+
+```bash
+npx --yes --package ./ent-app-kit ent-app-kit setup --agent claude-code --method speckit --mode autopilot
+npx --yes --package ./ent-app-kit ent-app-kit setup --agent codex --method openspec --mode autopilot
+```
+
+- **Agent** — which coding agent you'll use (see table above).
+- **SDD Method** — how the agent plans and implements (see table above).
+- **Mode** — `autopilot` runs the workflow end-to-end unless blocked; `interactive` pauses for user input at important workflow phases.
+
+IBM Bob uses the agent id `ibm-bob`.
+
+**3. Open your coding agent in the workspace and ask it to build**
+
+```
+Build the app kit.
+```
+
+That's it. The agent reads the installed instructions, plans the work in slices, and builds the application into `repos/`.
+
+## What Setup Actually Does
+
+No magic — `ent-app-kit setup` is a deterministic Node.js setup command that:
+
+1. Validates the assembled package contents (`manifest.yaml`, `payload/repos.yaml`, skills).
+2. Initializes workspace state in `.kit-state/state.yaml`, including an inventory of what your payload provides.
+3. Prepares selected method tools when needed and approved: the pinned OpenSpec npm package for OpenSpec, or the pinned Spec Kit uv tool for Spec Kit.
+4. Initializes the selected SDD workspace when needed (`.specify/` for Spec Kit, `openspec/` for OpenSpec).
+5. Installs the kit's skills — engine skills from `skills/` plus any project skills from `payload/skills/` — where your agent can find them (e.g. `.claude/skills/` for Claude Code, `.bob/skills/` for IBM Bob).
+6. Writes a driver instructions file for your agent (e.g. `CLAUDE.md` for Claude Code or `AGENTS.md` for Codex and IBM Bob). If one already exists, interactive setup asks whether to replace it, keep it, or cancel. Non-interactive setup requires `--replace-agent-instructions` or `--keep-agent-instructions`.
+7. Runs Impeccable through the pinned package declared by setup when enabled.
+8. Runs a compile check to confirm the workspace is ready.
+
+Agent-specific behavior is routed through adapters rather than spread across setup modules. To add another coding agent, add an adapter that declares the skill surface, instruction surface, method-tool mapping, optional native/plugin surfaces, and capability-provider mappings, then register it and add setup tests. The existing direct-install model remains the default; native plugins are optional adapter outputs, not the core package format.
+
+Run `npx --yes --package ./ent-app-kit ent-app-kit setup --help` from the workspace root for all options. Scripted setup with `--non-interactive` or `--yes` must pass `--agent`, `--method`, and `--mode`; if those selections are missing and prompting is unavailable, setup fails before writing workspace files and prints a complete example command.
+
+The legacy shell/Python startup fallback has been removed from the package. Setup is supported through the Node CLI.
+
+### Third-Party Tools and Dependencies
+
+Enterprise App Kit uses the following third-party components during setup and runtime. This is the README-level install/run inventory for direct components. Transitive dependency details are resolved by the relevant package manager and should be tracked through `package-lock.json`, lockfiles from setup-time tools, or OSS/SBOM review artifacts when required.
+
+Direct runtime npm dependencies for the local `ent-app-kit` package:
+
+| Component | Declared range | Current lockfile version | License | Used for | How it is obtained |
+|---|---:|---:|---|---|---|
+| `@clack/prompts` | `^1.7.0` | `1.7.0` | MIT | Interactive setup wizard | Installed by npm for the local `ent-app-kit` package |
+| `ajv` | `^8.20.0` | `8.20.0` | MIT | JSON schema validation | Installed by npm for the local `ent-app-kit` package |
+| `yaml` | `^2.9.0` | `2.9.0` | ISC | YAML parsing | Installed by npm for the local `ent-app-kit` package |
+
+OpenSpec, Spec Kit, and Impeccable are selected setup-time tools, not always-installed dependencies of `ent-app-kit`. Setup resolves only the tools required by the selected method and agent options:
+
+| Component | Pinned package | When used | How setup obtains it | Bundled in `ent-app-kit`? |
+|---|---|---|---|---|
+| OpenSpec | `@fission-ai/openspec@1.8.0` | When `--method openspec` needs setup-managed OpenSpec installation | npm global install | No |
+| Spec Kit | `specify-cli==0.16.2` | When `--method speckit` needs setup-managed Spec Kit installation | `uv tool install` | No |
+| Impeccable | `impeccable@3.6.1` | When Impeccable is enabled for the selected agent | pinned `npx` package execution | No |
+
+For restricted-network environments, the possible setup-time package-manager fetches are:
+
+- App Kit runtime npm dependencies for the local `ent-app-kit` package on first run.
+- `@fission-ai/openspec@1.8.0` via npm global install when `--method openspec` needs setup-managed OpenSpec installation.
+- `specify-cli==0.16.2` via `uv tool install` when `--method speckit` needs setup-managed Spec Kit installation.
+- `impeccable@3.6.1` through pinned `npx` package execution when Impeccable is enabled.
+
+The App Kit runtime dependency bootstrap runs `npm install --omit=dev --no-audit --fund=false --ignore-scripts`. The selected setup tools are pinned to the versions above, but their setup-managed install or execution commands do not add an explicit `--ignore-scripts` flag.
+
+OpenSpec and Spec Kit are persistent method tools because users should be able to run plain commands such as `openspec ...` and `specify ...` after setup completes:
+
+- OpenSpec uses the pinned npm global package declared by setup.
+- Spec Kit uses the pinned uv user tool declared by setup.
+
+Before invoking either persistent method tool, setup checks whether the command already exists on `PATH` and reports the kit-pinned version:
+
+- If the command is missing, interactive setup asks whether to install the pinned package. Non-interactive setup fails unless `--ensure-tools` is set.
+- If the command exists and reports the pinned version, setup reuses it and does not reinstall.
+- If the command exists with a different version, interactive setup asks whether to keep the existing version, update to the pinned version, or abort. Non-interactive setup keeps the existing version and prints a warning.
+- If the command exists but its version cannot be verified, setup treats it as unpinned and follows the same warning or prompt behavior as a mismatched version.
+
+After every persistent install or update, setup verifies that the command is visible on `PATH` and reports the expected pinned version. If either check fails, setup stops with a remediation message instead of continuing with an unknown tool version.
+
+Impeccable is different: it is setup-time only by default and runs through pinned `npx` package execution. It installs the Impeccable skill into the selected agent's skill directory, but setup does not globally install the `impeccable` command. Setup runs this pinned package automatically when Impeccable is enabled; skip it with `--skip-impeccable`, or use `--no-tool-downloads` to forbid pinned `npx` execution.
+
+Useful setup-tool options:
+
+- `--ensure-tools` installs missing persistent tools and updates mismatched or unverifiable persistent tools to App Kit's pinned versions without additional prompts. Use this for CI and reproducible enterprise bootstrap scripts.
+- `--no-tool-downloads` disables package installs, updates, and pinned `npx` execution. Use it only after required method tools are preinstalled on `PATH` or supplied by an enterprise image. Missing required tools fail, and mismatched installed persistent tools are reused with warnings.
+- `--verbose-tools` streams full npm, npx, or uv output live when troubleshooting a slow or failing tool command. By default, setup keeps tool output concise and captures package-manager logs for failures.
+- `--skip-impeccable` avoids resolving or running Impeccable.
+
+Examples:
+
+```bash
+# Interactive setup asks before installing or updating setup tools.
+npx --yes --package ./ent-app-kit ent-app-kit setup
+
+# CI/reproducible setup: enforce the kit-pinned setup tools.
+npx --yes --package ./ent-app-kit ent-app-kit setup --agent ibm-bob --method speckit --mode autopilot --non-interactive --ensure-tools
+
+# Locked-down setup: never download or update tools.
+npx --yes --package ./ent-app-kit ent-app-kit setup --agent codex --method openspec --mode autopilot --non-interactive --no-tool-downloads --skip-impeccable
+```
+
+## Everyday Tasks
+
+**Resume an interrupted run** — just ask your agent:
+
+```
+Resume the app kit build.
+```
+
+The agent reconstructs its position from `.kit-state/` and continues; it never restarts completed work.
+
+**Add a feature after the build** — ask for it in plain language. New features flow through the same workflow as new, traceable scope.
+
+**Change agent, method, or mode** — rerun setup from the workspace root with new flags.
+
+## Quality Checks
+
+Run the unit tests:
+
+```bash
 npm test
-
-# Run unit tests in watch mode
-npm run test -- --watch
-
-# Lint and type-check
-npm run lint
-npm run type-check
-
-# Build production bundle
-npm run build
 ```
 
-### End-to-End Tests
+Run the typed-JavaScript contract check:
 
 ```bash
-cd frontend
-
-# Run Playwright E2E tests (requires both backend and frontend running)
-npx playwright test
-
-# Run specific test suite
-npx playwright test e2e/wireframe_01_case_submission.spec.ts
-npx playwright test e2e/journey_new_request_to_routing.spec.ts
-
-# Show test report
-npx playwright show-report
+npm run typecheck
 ```
 
-## Docker Deployment
+The setup CLI remains runtime JavaScript. TypeScript is used in no-emit mode with JSDoc and `// @ts-check` to catch adapter-contract drift without adding a build step or requiring a TypeScript loader during setup.
 
-### SQLite (Development/Single-Instance)
+Run the local-package smoke test:
 
 ```bash
-# Start services
-docker compose up
-
-# Start in background
-docker compose up -d
-
-# Stop services
-docker compose down
-
-# View logs
-docker compose logs -f backend
-docker compose logs -f frontend
+npm run test:smoke
 ```
 
-Access the application at http://localhost
+The smoke test creates a fresh temporary workspace with spaces in its path, copies `ent-app-kit/` into it without local runtime artifacts, checks the npm package file list, runs the documented local-package `npx --yes --package ./ent-app-kit ent-app-kit setup --agent codex --method openspec --mode autopilot --non-interactive` path against an already initialized OpenSpec workspace, and verifies that setup produced `.kit-state/`, agent instructions, installed skills, and initialized repos. Use `npm run validate` to run typecheck, unit tests, and the smoke test.
 
-### PostgreSQL (Production)
+Run the same smoke test inside a clean container:
 
 ```bash
-# Start with PostgreSQL
-docker compose -f docker-compose.yml -f docker-compose.postgres.yml up
-
-# Start in background
-docker compose -f docker-compose.yml -f docker-compose.postgres.yml up -d
-
-# Stop services
-docker compose -f docker-compose.yml -f docker-compose.postgres.yml down
-
-# Remove volumes (WARNING: deletes all data)
-docker compose -f docker-compose.yml -f docker-compose.postgres.yml down -v
+npm run test:smoke:container
 ```
 
-The PostgreSQL override:
-- Runs `postgres:16-alpine` as the `database` service
-- Updates backend `DATABASE_URL` to point at the database service
-- Installs PostgreSQL driver via `pip install .[postgres]`
-- Persists data in `postgres-data` volume
+The container smoke uses Podman when available and falls back to Docker. It copies the kit to a temporary directory, mounts that copy into `node:20-bookworm`, installs only the container prerequisites, and runs `npm run test:smoke` inside the container. Override the runtime with `ENT_APP_KIT_CONTAINER_RUNTIME=<podman|docker>` and the image with `ENT_APP_KIT_SMOKE_IMAGE=<image>` when needed.
 
-## Database Management
+## Workspace Layout After Setup
 
-### Migrations
-
-Migrations are managed with Alembic and run automatically by `start.sh` and the Docker entrypoint.
-
-```bash
-cd backend
-source .venv/bin/activate
-
-# Apply all pending migrations
-alembic upgrade head
-
-# Create new migration (after modifying models)
-alembic revision --autogenerate -m "Description of change"
-
-# Review the generated migration before committing
-cat alembic/versions/<new_revision>.py
-
-# Downgrade one revision
-alembic downgrade -1
-
-# Show current revision
-alembic current
-
-# Show migration history
-alembic history
-```
-
-### Seed Data
-
-The seed script is idempotent and safe to run multiple times:
-
-```bash
-cd backend
-source .venv/bin/activate
-python -m app.seed
-```
-
-Seeds:
-- 7 users (one per role) with known passwords
-- 4 sample cases in various states (routed, intake_blocked, queued_for_review)
-- Case events showing ATS1→ATS2→ATS3 intake workflow execution
-- Audit log entries for case registration
-
-## Environment Configuration
-
-### Backend (`backend/.env`)
-
-The application reads configuration from `backend/.env`. On first run, `start.sh` copies `backend/dev.env` to `backend/.env`.
-
-Key settings:
-
-```bash
-# Database (SQLite for local dev, PostgreSQL for production)
-DATABASE_URL=sqlite:///./app.db
-
-# JWT authentication
-JWT_SECRET_KEY=dev-secret-key-change-in-production
-JWT_ALGORITHM=HS256
-JWT_EXPIRY_MINUTES=1440
-
-# CORS (automatically updated by start.sh with frontend port)
-CORS_ORIGINS=["http://localhost:5173"]
-
-# Rate limiting
-RATE_LIMIT_ENABLED=true
-
-# Debug mode (disable in production)
-DEBUG=true
-```
-
-**Production checklist**:
-- Set `DATABASE_URL` to PostgreSQL connection string
-- Generate cryptographically secure `JWT_SECRET_KEY`
-- Set `DEBUG=false`
-- Configure `CORS_ORIGINS` with actual frontend domain(s)
-- Review `JWT_EXPIRY_MINUTES` per security policy
-
-### Frontend
-
-The frontend uses `import.meta.env.VITE_API_URL ?? '/api'` as the API base URL. By default, all API calls are relative (`/api/...`) and proxied:
-
-- **Local dev**: Vite dev server proxies `/api` to `http://localhost:<BACKEND_PORT>`
-- **Docker**: nginx forwards `/api` to `backend:8000`
-- **Production**: Set `VITE_API_URL` environment variable at build time only if the API is on a different origin
-
-No frontend `.env` file is required for local development.
-
-## CI/CD
-
-The `.github/workflows/ci.yml` workflow runs on push and pull requests to `main`:
-
-### Backend Job
-1. Starts PostgreSQL service container
-2. Installs Python 3.11 and dependencies
-3. Runs `ruff check app/` (lint)
-4. Runs `mypy app/` (type-check)
-5. Runs `alembic upgrade head` (migrations against PostgreSQL)
-6. Runs `pytest --cov=app` (tests with coverage)
-
-### Frontend Job
-1. Installs Node.js 22 and dependencies
-2. Runs `npm run lint`
-3. Runs `npm run type-check`
-4. Runs `npm test` (Vitest unit tests)
-5. Runs `npm run build` (production build)
-
-Both jobs must pass for the build to succeed.
-
-## Architecture
-
-### Backend Stack
-- **Framework**: FastAPI 0.115+
-- **ORM**: SQLAlchemy 2.0+ (synchronous)
-- **Migrations**: Alembic 1.14+
-- **Validation**: Pydantic 2.10+
-- **Auth**: PyJWT 2.10+ with bcrypt password hashing
-- **Database**: SQLite (local), PostgreSQL 16+ (production)
-
-### Frontend Stack
-- **Framework**: React 18.3+
-- **Language**: TypeScript 5.7+
-- **Build Tool**: Vite 6.0+
-- **Routing**: React Router 6.28+
-- **Styling**: Tailwind CSS 3.4+
-- **Testing**: Vitest 2.1+, Playwright 1.49+
-
-### Key Features Implemented (MVP Scope)
-
-- **FR-001**: Case registration with unique IAO-YYYY-NNNNNN reference, workflow classification, and reasoned rejection
-- **FR-002**: Completeness and eligibility validation at intake via Deterministic Rule Engine
-- **FR-004**: Workflow routing to correct atomic step and accountable role
-- **FR-023**: Per-case step and trace view with agent outputs, routing decisions, and recorded rationale
-- **FR-024**: Visibility of reasoning, routing, and approval chain with role-based evidence inspection
-
-### Agent Orchestration
-
-**AGN1 (Intake & Routing Agent)** executes the ATS1→ATS2→ATS3 workflow:
-
-- **ATS1 (Completeness Validation)**: Deterministic Rule Engine checks required fields
-- **ATS2 (Eligibility Validation)**: Deterministic Rule Engine validates workflow type eligibility
-- **ATS3 (Routing Resolution)**: Agent classifies workflow type and resolves next step + accountable role
-
-Outcome states:
-- `routed` — Case successfully passed intake and routed to next workflow step
-- `intake_blocked` — Case failed completeness/eligibility validation, routed to intake exception queue
-- `queued_for_review` — Case passed intake but requires manual review before proceeding
-
-**AGN2-AGN6 are registered but deferred** (not implemented in MVP):
-- AGN2: Request Comprehension (deferred)
-- AGN3: Origin Determination (deferred)
-- AGN4: Decision Drafting (deferred)
-- AGN5: Approval & Issuance (deferred)
-- AGN6: Dispute Adjudication (deferred)
-
-### Security Features
-
-- **Password hashing**: bcrypt with cost factor 12
-- **JWT tokens**: Mandatory `exp` claim, tokens stored as SHA-256 hashes in database
-- **Session management**: Revocable sessions with inactivity timeout tracking
-- **Rate limiting**: 5 login attempts per 5-minute window per IP (disabled for E2E tests via `RATE_LIMIT_ENABLED=false`)
-- **RBAC**: Role-based endpoint protection via `require_role()` dependency
-- **Audit trail**: Immutable audit_log and case_events tables recording all security-relevant actions
-- **CORS**: Explicit origin allowlist, never wildcard with credentials
-- **Input validation**: Pydantic schemas with field-level validators on all endpoints
-- **SQL injection prevention**: Parameterized queries via SQLAlchemy ORM only
-
-### Observability
-
-- **Correlation IDs**: Generated per request via middleware, propagated through all service calls and audit logs
-- **Audit logging**: Dedicated `AuditService` records security/compliance events with severity, actor, entity tracking
-- **Structured events**: Immutable `case_events` table captures every case transition with decision source (deterministic vs agent)
-- **Health endpoints**: `/health` for liveness, `/api/v1/health` for authenticated health check
-
-## Production Deployment Notes
-
-### Database
-- **Use PostgreSQL 16+** in production (required for horizontal scaling, proven enterprise-grade reliability)
-- Enable connection pooling (already configured in SQLAlchemy engine for PostgreSQL dialect)
-- Set up automated backups and point-in-time recovery (PITR)
-- Review retention policies for `audit_log` and `case_events` tables
-
-### Security
-- Generate cryptographically secure `JWT_SECRET_KEY` (minimum 32 bytes, base64-encoded random)
-- Set `DEBUG=false`
-- Configure `CORS_ORIGINS` with actual frontend domain(s), never `["*"]`
-- Use HTTPS/TLS for all traffic
-- Rotate JWT secret on a defined schedule
-- Review rate limiting thresholds for production load
-- Enable firewall rules to restrict database access
-
-### Infrastructure
-- **Horizontal scaling**: Backend is stateless and horizontally scalable (all session state in database)
-- **Rate limiting**: Move from in-process counter to shared store (Redis) when running multiple backend instances
-- **Session storage**: Consider Redis for session cache to reduce database load
-- **CDN**: Serve frontend static assets via CDN
-- **Load balancer**: Use health endpoint (`/health`) for liveness checks
-
-### Monitoring
-- Track request rate, latency, error rate
-- Monitor database connection pool usage
-- Alert on failed login attempts (potential brute-force)
-- Track agent execution disposition (success/failure rates)
-- Monitor audit log growth rate
-
-### Compliance
-- Audit logs retained per regulatory requirements (default: indefinite, review for GDPR/compliance)
-- Session tokens revocable on logout (supports "right to be forgotten")
-- Personal data documented in models (email, applicant_name)
-- Data minimization: only collect required fields
+| Path | What it is | Yours to edit? |
+|---|---|---|
+| `ent-app-kit/` | The package: engine + `payload/` project content | Treat as read-only input |
+| `repos/` | Generated application code | Yes — it's your app |
+| `out/` | Generated reports | Generated |
+| `.kit-state/` | Workflow runtime state | No — managed by the workflow |
 
 ## Troubleshooting
 
-### Port Already in Use
-If `start.sh` reports ports 9000 or 5173 in use, it automatically finds the next available port. Check the output for actual URLs.
-
-### Python Version Issues
-- **"Python 3.11+ required"**: Install Python 3.11 or later from python.org
-- **Windows "python3 not found"**: Use `python` instead of `python3` after activating venv
-
-### Node Version Issues
-- **"Node.js 20.19+ or 22.12+ required"**: Install Node.js 22.x LTS from nodejs.org
-- Check version: `node --version`
-
-### Database Migration Errors
-```bash
-# Reset database (WARNING: deletes all data)
-cd backend
-rm app.db
-source .venv/bin/activate
-alembic upgrade head
-python -m app.seed
-```
-
-### Frontend Build Errors
-```bash
-cd frontend
-rm -rf node_modules package-lock.json
-npm install
-npm run build
-```
-
-### Docker Issues
-- **Port conflicts**: Stop services using port 80/8000, or modify `docker-compose.yml` ports
-- **Build failures**: Run `docker compose build --no-cache`
-- **Database connection errors**: Ensure PostgreSQL service is healthy: `docker compose logs database`
-
-### Authentication Issues
-- **401 Unauthorized**: Token may be expired (check JWT_EXPIRY_MINUTES) or invalid
-- **403 Forbidden**: User lacks required role for endpoint
-- **429 Too Many Requests**: Rate limit exceeded, wait 5 minutes or disable with `RATE_LIMIT_ENABLED=false`
-
-## Development Workflow
-
-### Adding a New Feature
-
-1. **Update models** in `backend/app/models/`
-2. **Create migration**: `cd backend && alembic revision --autogenerate -m "Add feature"`
-3. **Review and edit** the generated migration file
-4. **Add schemas** in `backend/app/schemas/`
-5. **Add repository methods** in `backend/app/repositories/`
-6. **Add service logic** in `backend/app/services/`
-7. **Add router endpoints** in `backend/app/routers/`
-8. **Add tests**: unit (`test_<feature>_service.py`), integration (`test_<feature>_integration.py`), acceptance (`test_<feature>_acceptance.py`)
-9. **Add frontend types** in `frontend/src/types/`
-10. **Add UI components** in `frontend/src/components/` and `frontend/src/pages/`
-11. **Add frontend tests** in `frontend/src/__tests__/`
-12. **Update API documentation** (auto-generated from FastAPI schemas)
-
-### Code Quality
-
-```bash
-# Backend
-cd backend
-source .venv/bin/activate
-ruff check app/           # Lint
-mypy app/                 # Type-check
-pytest --cov=app          # Test with coverage
-
-# Frontend
-cd frontend
-npm run lint              # ESLint
-npm run type-check        # TypeScript
-npm test                  # Vitest
-npm run build             # Production build verification
-```
-
-## License
-
-See LICENSE file for details.
-
-## Support
-
-For issues, questions, or contributions, please contact the Abu Dhabi Customs development team.
+- **"`payload/repos.yaml` is required"** — run setup only after payload assembly has written the repository topology. For local experiments, copy `examples/payload/minimal/repos.yaml` to `payload/repos.yaml` and edit it.
+- **Unsupported agent** — add or fix the corresponding adapter under `src/adapters/`, then confirm the agent id is registered and listed in `manifest.yaml`.
+- **Output appears in the wrong place** — run setup in a terminal from the workspace root, not from inside `ent-app-kit/`.
+- **A selected setup tool cannot be resolved** — install the required package runner (`npm` for OpenSpec, `uv` for Spec Kit, `npx` for Impeccable), rerun with `--ensure-tools` to let setup install or update pinned tools, or use `--no-tool-downloads` after placing required tools on `PATH`.
+- **A method tool installed but the command is still missing** — restart your terminal or IDE, make sure the npm global bin or uv tool bin directory is on `PATH`, then rerun setup.
+- **Driver file already exists** — interactive setup asks whether to replace it, keep it, or cancel. Non-interactive setup fails unless you pass `--replace-agent-instructions` or `--keep-agent-instructions`.
+- **Agent says setup state is missing** — run setup first from the workspace root; the workflow blocks until `.kit-state/state.yaml` exists.
+- **Skip the compile check** (e.g. in constrained environments) — pass `--skip-compile-check`.
