@@ -1,0 +1,189 @@
+{
+  "status": "issues_found",
+  "target_path": "/repos/adc-trade-agreements",
+  "requested_linters": [
+    "ruff"
+  ],
+  "applicable_linters": [
+    "ruff",
+    "biome",
+    "djlint",
+    "shellcheck",
+    "shfmt",
+    "yamllint"
+  ],
+  "selected_linters": [
+    "ruff"
+  ],
+  "message": "All findings, including any findings omitted from the inline response, are available in the report files listed under `report_paths`.",
+  "summary": {
+    "errors": 242,
+    "warnings": 0,
+    "total_findings": 242,
+    "inline_findings": 20,
+    "remaining_findings": 222,
+    "linters_run": 1,
+    "linters_with_issues": 1,
+    "linters_unavailable": 0
+  },
+  "by_tool": {
+    "ruff": {
+      "status": "issues_found",
+      "errors": 242,
+      "warnings": 0,
+      "total_findings": 242,
+      "inline_findings": 20,
+      "remaining_findings": 222,
+      "files": [
+        {
+          "path": "/repos/adc-trade-agreements/backend/alembic/env.py",
+          "findings": [
+            {
+              "msg": "Import block is un-sorted or un-formatted",
+              "line": 2,
+              "column": 1,
+              "code": "I001"
+            }
+          ]
+        },
+        {
+          "path": "/repos/adc-trade-agreements/backend/alembic/versions/001_initial_schema.py",
+          "findings": [
+            {
+              "msg": "Trailing whitespace",
+              "line": 4,
+              "column": 9,
+              "code": "W291"
+            },
+            {
+              "msg": "Import block is un-sorted or un-formatted",
+              "line": 9,
+              "column": 1,
+              "code": "I001"
+            }
+          ]
+        },
+        {
+          "path": "/repos/adc-trade-agreements/backend/tests/conftest.py",
+          "findings": [
+            {
+              "msg": "Module level import not at top of file",
+              "line": 22,
+              "column": 1,
+              "code": "E402"
+            },
+            {
+              "msg": "Import block is un-sorted or un-formatted",
+              "line": 22,
+              "column": 1,
+              "code": "I001"
+            },
+            {
+              "msg": "Module level import not at top of file",
+              "line": 23,
+              "column": 1,
+              "code": "E402"
+            },
+            {
+              "msg": "Module level import not at top of file",
+              "line": 24,
+              "column": 1,
+              "code": "E402"
+            },
+            {
+              "msg": "Module level import not at top of file",
+              "line": 25,
+              "column": 1,
+              "code": "E402"
+            },
+            {
+              "msg": "Module level import not at top of file",
+              "line": 27,
+              "column": 1,
+              "code": "E402"
+            },
+            {
+              "msg": "Module level import not at top of file",
+              "line": 28,
+              "column": 1,
+              "code": "E402"
+            },
+            {
+              "msg": "Module level import not at top of file",
+              "line": 29,
+              "column": 1,
+              "code": "E402"
+            }
+          ]
+        },
+        {
+          "path": "/repos/adc-trade-agreements/backend/tests/test_agn1_orchestrator.py",
+          "findings": [
+            {
+              "msg": "Import block is un-sorted or un-formatted",
+              "line": 2,
+              "column": 1,
+              "code": "I001"
+            },
+            {
+              "msg": "`datetime.datetime` imported but unused",
+              "line": 3,
+              "column": 22,
+              "code": "F401"
+            },
+            {
+              "msg": "`datetime.timezone` imported but unused",
+              "line": 3,
+              "column": 32,
+              "code": "F401"
+            },
+            {
+              "msg": "`pytest` imported but unused",
+              "line": 5,
+              "column": 8,
+              "code": "F401"
+            },
+            {
+              "msg": "Blank line contains whitespace",
+              "line": 23,
+              "column": 1,
+              "code": "W293"
+            },
+            {
+              "msg": "Blank line contains whitespace",
+              "line": 34,
+              "column": 1,
+              "code": "W293"
+            },
+            {
+              "msg": "Blank line contains whitespace",
+              "line": 36,
+              "column": 1,
+              "code": "W293"
+            },
+            {
+              "msg": "Blank line contains whitespace",
+              "line": 49,
+              "column": 1,
+              "code": "W293"
+            },
+            {
+              "msg": "Blank line contains whitespace",
+              "line": 56,
+              "column": 1,
+              "code": "W293"
+            }
+          ]
+        }
+      ],
+      "report_path": "/repos/adc-trade-agreements/.quality/lint/ruff-result.json",
+      "truncated": true
+    }
+  },
+  "report_dir": "/repos/adc-trade-agreements/.quality/lint",
+  "report_paths": {
+    "summary": "/repos/adc-trade-agreements/.quality/lint/summary.json",
+    "ruff": "/repos/adc-trade-agreements/.quality/lint/ruff-result.json"
+  },
+  "truncated": true
+}
