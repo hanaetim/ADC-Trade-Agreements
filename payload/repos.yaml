@@ -1,0 +1,13 @@
+schema: appkit-repos-v1
+topology: multi
+repositories:
+  - name: iaom-backend
+    role: application
+    workspace_path: repos/iaom-backend
+    source: greenfield
+    description: Python/Anthropic-SDK backend for the International Agreements & Origin workflows — agents AGN1-AGN6, the Deterministic Rule Engine, MCP tools TOL1-TOL8 against mocked systems of record, business rules, state machines, and the immutable audit trail.
+  - name: iaom-frontend
+    role: application
+    workspace_path: repos/iaom-frontend
+    source: greenfield
+    description: Bilingual (Arabic RTL / English LTR) web front-end exposing role-scoped HITL review queues, the per-case step/trace visibility view, origin-determination and dispute screens, the mocked customer portal, and the audit-trail view.
